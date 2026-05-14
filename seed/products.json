@@ -1,0 +1,298 @@
+[
+  {
+    "product": {
+      "gtin": "07350053850010",
+      "name": "Atelier Organic Cotton Tee",
+      "category": "textile",
+      "manufacturer": "Atelier Textiles SA"
+    },
+    "dpp": {
+      "lot": "ATL-2026-T01",
+      "serial": null,
+      "schema_version": "textile-dpp.v1",
+      "data": {
+        "schemaVersion": "textile-dpp.v1",
+        "identification": {
+          "gtin": "07350053850010",
+          "lot": "ATL-2026-T01",
+          "brand": "Atelier",
+          "productName": "Atelier Organic Cotton Tee",
+          "model": "ATL-OC-TEE-01"
+        },
+        "composition": {
+          "materials": [
+            {
+              "name": "Organic Cotton",
+              "percentage": 95,
+              "recycledContentPercentage": 0,
+              "biobasedContentPercentage": 100
+            },
+            {
+              "name": "Elastane",
+              "percentage": 5,
+              "recycledContentPercentage": 0
+            }
+          ],
+          "recycledContentOverallPercentage": 0
+        },
+        "origin": {
+          "countryOfManufacture": "PT",
+          "countryOfFinalProcessing": "PT",
+          "supplyChain": [
+            { "step": "fiber-production", "country": "IN" },
+            { "step": "spinning", "country": "PT" },
+            { "step": "knitting", "country": "PT" },
+            { "step": "cut-make-trim", "country": "PT" }
+          ]
+        },
+        "manufacturing": {
+          "facilityId": "GLN-7350053850010-PT01",
+          "manufacturingDate": "2026-02-12",
+          "batchNumber": "ATL-2026-T01"
+        },
+        "environmental": {
+          "carbonFootprint": {
+            "valueKgCO2e": 4.8,
+            "scope": "cradle-to-gate",
+            "methodology": "PEF"
+          },
+          "waterUsageLiters": 1700
+        },
+        "compliance": {
+          "certifications": [
+            {
+              "scheme": "GOTS",
+              "identifier": "GOTS-2026-AT-0114",
+              "issuedOn": "2026-01-10",
+              "validUntil": "2027-01-09"
+            }
+          ],
+          "substancesOfConcern": []
+        },
+        "lifecycleGuidance": {
+          "careInstructions": [
+            "Wash cold at 30°C",
+            "Do not tumble dry",
+            "Iron on low heat"
+          ],
+          "repairGuidance": "Small holes can be darned with matching organic cotton thread.",
+          "endOfLifeOptions": ["reuse", "repair", "recycle"],
+          "recyclabilityScore": 0.85
+        },
+        "authority": {
+          "economicOperator": {
+            "name": "Atelier Textiles SA",
+            "country": "PT",
+            "registrationNumber": "PT500123456",
+            "address": "Rua Têxtil 14, 4400-001 Porto, Portugal"
+          },
+          "dataCarrier": "qr-code"
+        }
+      }
+    }
+  },
+  {
+    "product": {
+      "gtin": "07350053850027",
+      "name": "Northwave Recycled Denim Jeans",
+      "category": "textile",
+      "manufacturer": "Northwave Apparel GmbH"
+    },
+    "dpp": {
+      "lot": "NW-2026-D02",
+      "serial": null,
+      "schema_version": "textile-dpp.v1",
+      "data": {
+        "schemaVersion": "textile-dpp.v1",
+        "identification": {
+          "gtin": "07350053850027",
+          "lot": "NW-2026-D02",
+          "brand": "Northwave",
+          "productName": "Northwave Recycled Denim Jeans",
+          "model": "NW-DEN-512"
+        },
+        "composition": {
+          "materials": [
+            {
+              "name": "Recycled Cotton",
+              "percentage": 70,
+              "recycledContentPercentage": 100
+            },
+            {
+              "name": "Cotton",
+              "percentage": 28,
+              "recycledContentPercentage": 0
+            },
+            {
+              "name": "Elastane",
+              "percentage": 2,
+              "recycledContentPercentage": 0
+            }
+          ],
+          "recycledContentOverallPercentage": 70
+        },
+        "origin": {
+          "countryOfManufacture": "TN",
+          "countryOfFinalProcessing": "DE",
+          "supplyChain": [
+            { "step": "fiber-recycling", "country": "ES" },
+            { "step": "spinning", "country": "TN" },
+            { "step": "weaving", "country": "TN" },
+            { "step": "dyeing", "country": "TN" },
+            { "step": "cut-make-trim", "country": "TN" },
+            { "step": "finishing", "country": "DE" }
+          ]
+        },
+        "manufacturing": {
+          "facilityId": "GLN-7350053850027-TN01",
+          "manufacturingDate": "2026-03-04",
+          "batchNumber": "NW-2026-D02"
+        },
+        "environmental": {
+          "carbonFootprint": {
+            "valueKgCO2e": 12.4,
+            "scope": "cradle-to-gate",
+            "methodology": "PEF"
+          },
+          "waterUsageLiters": 3300
+        },
+        "compliance": {
+          "certifications": [
+            {
+              "scheme": "GRS",
+              "identifier": "GRS-2026-NW-0042",
+              "issuedOn": "2026-01-22",
+              "validUntil": "2027-01-21"
+            },
+            {
+              "scheme": "OEKO-TEX Standard 100",
+              "identifier": "OT-100-22.HDE.51234",
+              "issuedOn": "2026-02-01",
+              "validUntil": "2027-01-31"
+            }
+          ],
+          "substancesOfConcern": []
+        },
+        "lifecycleGuidance": {
+          "careInstructions": [
+            "Wash inside-out at 30°C",
+            "Do not bleach",
+            "Tumble dry low"
+          ],
+          "repairGuidance": "Knee and seat reinforcement patches available through the Northwave repair program.",
+          "endOfLifeOptions": ["repair", "reuse", "recycle"],
+          "recyclabilityScore": 0.78
+        },
+        "authority": {
+          "economicOperator": {
+            "name": "Northwave Apparel GmbH",
+            "country": "DE",
+            "registrationNumber": "DE301234567",
+            "address": "Friesenstraße 22, 20097 Hamburg, Germany"
+          },
+          "dataCarrier": "qr-code"
+        }
+      }
+    }
+  },
+  {
+    "product": {
+      "gtin": "07350053850034",
+      "name": "Soraya Wool–Linen Jacket",
+      "category": "textile",
+      "manufacturer": "Soraya Atelier S.r.l."
+    },
+    "dpp": {
+      "lot": "SOR-2026-J03",
+      "serial": "SOR-J03-000142",
+      "schema_version": "textile-dpp.v1",
+      "data": {
+        "schemaVersion": "textile-dpp.v1",
+        "identification": {
+          "gtin": "07350053850034",
+          "lot": "SOR-2026-J03",
+          "serial": "SOR-J03-000142",
+          "brand": "Soraya",
+          "productName": "Soraya Wool–Linen Jacket",
+          "model": "SOR-JACK-WL-03"
+        },
+        "composition": {
+          "materials": [
+            {
+              "name": "Responsible Wool",
+              "percentage": 60,
+              "recycledContentPercentage": 0,
+              "biobasedContentPercentage": 100
+            },
+            {
+              "name": "European Linen",
+              "percentage": 38,
+              "recycledContentPercentage": 0,
+              "biobasedContentPercentage": 100
+            },
+            {
+              "name": "Polyester",
+              "percentage": 2,
+              "recycledContentPercentage": 100
+            }
+          ],
+          "recycledContentOverallPercentage": 2
+        },
+        "origin": {
+          "countryOfManufacture": "IT",
+          "countryOfFinalProcessing": "IT",
+          "supplyChain": [
+            { "step": "wool-production", "country": "AU" },
+            { "step": "linen-production", "country": "FR" },
+            { "step": "spinning", "country": "IT" },
+            { "step": "weaving", "country": "IT" },
+            { "step": "cut-make-trim", "country": "IT" }
+          ]
+        },
+        "manufacturing": {
+          "facilityId": "GLN-7350053850034-IT01",
+          "manufacturingDate": "2026-02-28",
+          "batchNumber": "SOR-2026-J03"
+        },
+        "environmental": {
+          "carbonFootprint": {
+            "valueKgCO2e": 18.2,
+            "scope": "cradle-to-gate",
+            "methodology": "PEF"
+          },
+          "waterUsageLiters": 2100
+        },
+        "compliance": {
+          "certifications": [
+            {
+              "scheme": "RWS",
+              "identifier": "RWS-2026-SOR-0007",
+              "issuedOn": "2026-02-15",
+              "validUntil": "2027-02-14"
+            }
+          ],
+          "substancesOfConcern": []
+        },
+        "lifecycleGuidance": {
+          "careInstructions": [
+            "Dry clean only",
+            "Do not wring",
+            "Store on a wide hanger"
+          ],
+          "repairGuidance": "Lining replacement and re-tailoring available through authorized Soraya repair partners.",
+          "endOfLifeOptions": ["repair", "reuse", "recycle"],
+          "recyclabilityScore": 0.62
+        },
+        "authority": {
+          "economicOperator": {
+            "name": "Soraya Atelier S.r.l.",
+            "country": "IT",
+            "registrationNumber": "IT01234567890",
+            "address": "Via della Moda 7, 20121 Milano, Italy"
+          },
+          "dataCarrier": "qr-code"
+        }
+      }
+    }
+  }
+]

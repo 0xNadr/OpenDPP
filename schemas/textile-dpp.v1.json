@@ -1,0 +1,348 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opendpp.org/schemas/textile-dpp.v1.json",
+  "title": "Textile Digital Product Passport",
+  "description": "OpenDPP v1.0 reference schema for textile-category Digital Product Passports. Field coverage informed by ESPR (Regulation (EU) 2024/1781) and aligned with GS1 Digital Link / GS1 Web Vocabulary identifiers.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "identification",
+    "composition",
+    "origin",
+    "manufacturing",
+    "compliance",
+    "lifecycleGuidance",
+    "authority"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "textile-dpp.v1",
+      "description": "Schema identifier and version. MUST equal 'textile-dpp.v1' for this schema."
+    },
+    "identification": {
+      "type": "object",
+      "description": "Product identification fields. GTIN is the canonical primary key per GS1 Digital Link 1.4.",
+      "required": ["gtin", "brand", "productName"],
+      "additionalProperties": false,
+      "properties": {
+        "gtin": {
+          "type": "string",
+          "pattern": "^[0-9]{8}$|^[0-9]{12}$|^[0-9]{13}$|^[0-9]{14}$",
+          "description": "GS1 Global Trade Item Number. Accepts GTIN-8, GTIN-12, GTIN-13, GTIN-14."
+        },
+        "lot": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "GS1 Application Identifier 10 (batch/lot number)."
+        },
+        "serial": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "GS1 Application Identifier 21 (individual serial number)."
+        },
+        "brand": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Brand under which the product is marketed."
+        },
+        "productName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable product name."
+        },
+        "model": {
+          "type": "string",
+          "description": "Manufacturer's model identifier."
+        },
+        "sku": {
+          "type": "string",
+          "description": "Internal stock-keeping unit, if distinct from GTIN."
+        }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "description": "Materials composition. Percentages within each list MUST sum to 100.",
+      "required": ["materials"],
+      "additionalProperties": false,
+      "properties": {
+        "materials": {
+          "type": "array",
+          "minItems": 1,
+          "description": "Material composition list. Percentages MUST sum to 100.",
+          "items": {
+            "type": "object",
+            "required": ["name", "percentage"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Material name (e.g., 'Organic Cotton', 'Recycled Polyester')."
+              },
+              "percentage": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 100,
+                "description": "Share of the product by weight."
+              },
+              "recycledContentPercentage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Recycled share of this material (0 if virgin)."
+              },
+              "biobasedContentPercentage": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Bio-based share of this material."
+              }
+            }
+          }
+        },
+        "recycledContentOverallPercentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Overall recycled content of the product, weighted across materials."
+        }
+      }
+    },
+    "origin": {
+      "type": "object",
+      "description": "Provenance information. Country codes follow ISO 3166-1 alpha-2.",
+      "required": ["countryOfManufacture"],
+      "additionalProperties": false,
+      "properties": {
+        "countryOfManufacture": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code where the product was manufactured."
+        },
+        "countryOfFinalProcessing": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code of final processing, if different from manufacture."
+        },
+        "supplyChain": {
+          "type": "array",
+          "description": "Ordered supply-chain steps. Suppliers may be anonymized or VC-attested.",
+          "items": {
+            "type": "object",
+            "required": ["step", "country"],
+            "additionalProperties": false,
+            "properties": {
+              "step": {
+                "type": "string",
+                "description": "Supply-chain step (e.g., 'fiber-production', 'spinning', 'weaving', 'dyeing', 'cut-make-trim')."
+              },
+              "country": {
+                "type": "string",
+                "pattern": "^[A-Z]{2}$"
+              },
+              "supplierId": {
+                "type": "string",
+                "description": "Anonymized identifier or DID for the supplier."
+              },
+              "attestationCredentialId": {
+                "type": "string",
+                "description": "Optional reference to a Verifiable Credential attesting this step."
+              }
+            }
+          }
+        }
+      }
+    },
+    "manufacturing": {
+      "type": "object",
+      "description": "Manufacturing-specific metadata.",
+      "required": ["manufacturingDate"],
+      "additionalProperties": false,
+      "properties": {
+        "facilityId": {
+          "type": "string",
+          "description": "Identifier of the manufacturing facility (GLN preferred where available)."
+        },
+        "manufacturingDate": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO 8601 date the unit was manufactured."
+        },
+        "batchNumber": {
+          "type": "string",
+          "description": "Manufacturer's batch/run identifier (may equal identification.lot)."
+        }
+      }
+    },
+    "environmental": {
+      "type": "object",
+      "description": "Environmental impact declarations. All values are declared, not certified, unless backed by a Verifiable Credential.",
+      "additionalProperties": false,
+      "properties": {
+        "carbonFootprint": {
+          "type": "object",
+          "required": ["valueKgCO2e", "scope"],
+          "additionalProperties": false,
+          "properties": {
+            "valueKgCO2e": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Carbon footprint expressed in kg CO2-equivalent."
+            },
+            "scope": {
+              "type": "string",
+              "enum": ["cradle-to-gate", "cradle-to-grave", "cradle-to-cradle"],
+              "description": "Lifecycle scope of the declared value."
+            },
+            "methodology": {
+              "type": "string",
+              "description": "Methodology reference (e.g., 'PEF', 'ISO 14067')."
+            }
+          }
+        },
+        "waterUsageLiters": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Declared water consumption per unit, if available."
+        }
+      }
+    },
+    "compliance": {
+      "type": "object",
+      "description": "Certifications, declared substances of concern, and other regulatory attestations.",
+      "required": ["certifications"],
+      "additionalProperties": false,
+      "properties": {
+        "certifications": {
+          "type": "array",
+          "description": "Active certifications. Empty array is permitted but discouraged.",
+          "items": {
+            "type": "object",
+            "required": ["scheme", "identifier"],
+            "additionalProperties": false,
+            "properties": {
+              "scheme": {
+                "type": "string",
+                "description": "Certification scheme (e.g., 'GOTS', 'OEKO-TEX Standard 100', 'GRS')."
+              },
+              "identifier": {
+                "type": "string",
+                "description": "Certificate number or identifier issued by the scheme."
+              },
+              "issuedOn": {
+                "type": "string",
+                "format": "date"
+              },
+              "validUntil": {
+                "type": "string",
+                "format": "date"
+              },
+              "verifiableCredentialId": {
+                "type": "string",
+                "description": "Optional reference to a W3C VC asserting the certification."
+              }
+            }
+          }
+        },
+        "substancesOfConcern": {
+          "type": "array",
+          "description": "Declared substances of concern, e.g., REACH SVHCs.",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Substance name."
+              },
+              "casNumber": {
+                "type": "string",
+                "pattern": "^[0-9]{2,7}-[0-9]{2}-[0-9]$",
+                "description": "Chemical Abstracts Service registry number."
+              },
+              "concentrationPpm": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Concentration in parts per million."
+              }
+            }
+          }
+        }
+      }
+    },
+    "lifecycleGuidance": {
+      "type": "object",
+      "description": "Consumer- and recycler-facing guidance on use, repair, and end-of-life handling.",
+      "required": ["careInstructions", "endOfLifeOptions"],
+      "additionalProperties": false,
+      "properties": {
+        "careInstructions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          },
+          "description": "Plain-text or symbol-coded care instructions (e.g., 'Wash at 30°C', 'Do not tumble dry')."
+        },
+        "repairGuidance": {
+          "type": "string",
+          "description": "Free-text repair and maintenance guidance for consumers and repairers."
+        },
+        "endOfLifeOptions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "enum": ["reuse", "repair", "recycle", "compost", "incinerate", "landfill"]
+          },
+          "description": "Recommended end-of-life pathways, in order of preference."
+        },
+        "recyclabilityScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Declared recyclability on a 0–1 scale."
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "description": "Economic operator responsible for placing the product on the EU market.",
+      "required": ["economicOperator"],
+      "additionalProperties": false,
+      "properties": {
+        "economicOperator": {
+          "type": "object",
+          "required": ["name", "country"],
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "country": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            "registrationNumber": {
+              "type": "string",
+              "description": "VAT or equivalent business registration identifier."
+            },
+            "address": {
+              "type": "string"
+            }
+          }
+        },
+        "dataCarrier": {
+          "type": "string",
+          "enum": ["qr-code", "data-matrix", "nfc", "rfid"],
+          "description": "Physical data carrier used to link to this DPP."
+        }
+      }
+    }
+  }
+}

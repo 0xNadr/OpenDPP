@@ -88,17 +88,77 @@ The v1.0 release targets the **textile** product category. Battery and electroni
 
 ## Getting started
 
-> Setup instructions land with Phase 1. The target is a working DPP running locally in **under 30 minutes**.
+Target: working DPP running locally in **under 30 minutes**.
+
+### Prerequisites
+
+- macOS or Linux
+- [Docker](https://docs.docker.com/get-docker/) (for Postgres)
+- [`uv`](https://docs.astral.sh/uv/) — `brew install uv` on macOS
+- Python 3.12 (uv will fetch one if you don't have it)
+- `make`
+
+### Quickstart
 
 ```bash
 git clone https://github.com/0xNadr/OpenDPP.git
 cd OpenDPP
-# instructions to follow
+cp .env.example .env
+
+make install     # install API dependencies into api/.venv
+make db-up       # start Postgres in docker compose
+make migrate     # apply Alembic migrations
+make seed        # load three sample textile products
+make dev         # run the API on http://localhost:8000
+```
+
+Open:
+
+- **API docs (OpenAPI)** — http://localhost:8000/docs
+- **Sample GS1 Digital Link (HTML placeholder)** — http://localhost:8000/01/07350053850010/10/ATL-2026-T01
+- **Same product as JSON-LD** —
+  ```bash
+  curl -H 'Accept: application/ld+json' \
+    http://localhost:8000/01/07350053850010/10/ATL-2026-T01
+  ```
+
+### Common tasks
+
+```bash
+make test        # run the pytest suite (SQLite in-memory, no DB needed)
+make lint        # ruff lint
+make fmt         # ruff format
+make db-down     # stop Postgres
+make clean       # tear down DB volume + venv
+```
+
+### Repository layout
+
+```
+OpenDPP/
+├── api/                          FastAPI service
+│   ├── src/opendpp/
+│   │   ├── routers/              GS1 Digital Link + REST endpoints
+│   │   ├── models/               SQLAlchemy ORM
+│   │   ├── schemas/              Pydantic request/response models
+│   │   ├── jsonld/               JSON-LD context (GS1 Web Vocab)
+│   │   └── validation.py         JSON Schema enforcement
+│   ├── alembic/                  Migrations
+│   └── tests/
+├── schemas/
+│   └── textile-dpp.v1.json       Canonical DPP schema (draft 2020-12)
+├── seed/
+│   ├── products.json             Three sample textile products
+│   └── load_seed.py              Idempotent loader
+├── docker-compose.yml
+└── Makefile
 ```
 
 ## Status
 
-**Phase 1 in progress.** This repository will fill in as phases ship. Each phase is independently publishable.
+**Phase 1 (Foundation) — shipped.** Working API that resolves a GS1 Digital Link URL to a JSON-LD DPP record, with three seeded textile samples and a passing test suite.
+
+Next: Phase 2 (Next.js viewer with consumer/recycler/regulator views and QR codes).
 
 ## Contributing
 

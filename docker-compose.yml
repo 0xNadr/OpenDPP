@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: opendpp-postgres
+    environment:
+      POSTGRES_USER: opendpp
+      POSTGRES_PASSWORD: opendpp
+      POSTGRES_DB: opendpp
+    ports:
+      - "5432:5432"
+    volumes:
+      - opendpp_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opendpp -d opendpp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  opendpp_pgdata:
