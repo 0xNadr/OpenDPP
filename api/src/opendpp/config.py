@@ -22,6 +22,14 @@ class Settings(BaseSettings):
         default=Path(__file__).resolve().parents[3] / "schemas" / "textile-dpp.v1.json",
         description="Filesystem path to the textile DPP JSON Schema.",
     )
+    cors_origins: list[str] = Field(
+        default=[
+            "http://localhost:3030",
+            "http://127.0.0.1:3030",
+            "http://localhost:3000",
+        ],
+        description="Origins allowed by CORS — defaults to the Next.js dev server.",
+    )
 
 
 @lru_cache

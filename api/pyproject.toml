@@ -19,6 +19,7 @@ dependencies = [
     "jsonschema>=4.23",
     "python-dotenv>=1.0",
     "greenlet>=3.5.0",
+    "qrcode[pil]>=8.2",
 ]
 
 [project.scripts]

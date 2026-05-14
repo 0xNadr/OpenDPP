@@ -1,51 +1,93 @@
-.PHONY: help install db-up db-down db-logs migrate seed dev test lint fmt clean
+.PHONY: help up down restart logs build rebuild ps shell-api shell-web migrate seed test test-api test-web lint lint-api lint-web fmt-api gen-types clean nuke
 
+# Default target: print help.
 help:
-	@echo "OpenDPP — common tasks"
+	@echo "OpenDPP — common tasks (everything runs in docker compose)"
 	@echo ""
-	@echo "  make install   Install API dependencies via uv"
-	@echo "  make db-up     Start Postgres in docker compose"
-	@echo "  make db-down   Stop Postgres"
-	@echo "  make migrate   Apply Alembic migrations"
-	@echo "  make seed      Load seed products and DPPs"
-	@echo "  make dev       Run the FastAPI dev server on :8000"
-	@echo "  make test      Run pytest"
-	@echo "  make lint      Run ruff check"
-	@echo "  make fmt       Run ruff format"
+	@echo "  make up         Start the full stack (postgres + api + web)"
+	@echo "  make down       Stop the stack (keeps the db volume)"
+	@echo "  make restart    Restart api + web"
+	@echo "  make build      Build images"
+	@echo "  make rebuild    Rebuild images from scratch and restart"
+	@echo "  make logs       Tail logs from all services"
+	@echo "  make ps         List running services"
+	@echo ""
+	@echo "  make migrate    Apply Alembic migrations"
+	@echo "  make seed       Load seed products"
+	@echo "  make test       Run pytest inside the api container"
+	@echo "  make lint       Run ruff + tsc"
+	@echo "  make gen-types  Regenerate TS types from textile-dpp.v1.json"
+	@echo ""
+	@echo "  make shell-api  Open a shell in the api container"
+	@echo "  make shell-web  Open a shell in the web container"
+	@echo ""
+	@echo "  make clean      docker compose down (keeps volumes)"
+	@echo "  make nuke       docker compose down -v (drops the db volume)"
+	@echo ""
+	@echo "  Host ports:  web 3030  ·  api 8080  ·  postgres 5433"
 
-install:
-	cd api && uv sync
+up:
+	docker compose up -d
+	@echo ""
+	@echo "  web → http://localhost:3030"
+	@echo "  api → http://localhost:8080/docs"
+	@echo "  pg  → localhost:5433"
 
-db-up:
-	docker compose up -d postgres
-	@echo "waiting for postgres..."
-	@until docker exec opendpp-postgres pg_isready -U opendpp -d opendpp >/dev/null 2>&1; do sleep 1; done
-	@echo "postgres ready"
+down:
+	docker compose stop
 
-db-down:
-	docker compose down
+restart:
+	docker compose restart api web
 
-db-logs:
-	docker compose logs -f postgres
+build:
+	docker compose build
+
+rebuild:
+	docker compose build --no-cache
+	docker compose up -d
+
+logs:
+	docker compose logs -f
+
+ps:
+	docker compose ps
 
 migrate:
-	cd api && uv run alembic upgrade head
+	docker compose exec api alembic upgrade head
 
 seed:
-	cd api && uv run python ../seed/load_seed.py
+	docker compose exec api python /seed/load_seed.py
 
-dev:
-	cd api && uv run uvicorn opendpp.main:app --reload --host 0.0.0.0 --port 8000
+test: test-api
 
-test:
-	cd api && uv run pytest
+test-api:
+	docker compose exec api pytest
 
-lint:
-	cd api && uv run ruff check src/ tests/
+test-web:
+	docker compose exec web pnpm exec tsc --noEmit
 
-fmt:
-	cd api && uv run ruff format src/ tests/
+lint: lint-api lint-web
+
+lint-api:
+	docker compose exec api ruff check src/ tests/
+
+lint-web:
+	docker compose exec web pnpm exec tsc --noEmit
+
+fmt-api:
+	docker compose exec api ruff format src/ tests/
+
+gen-types:
+	docker compose exec web pnpm gen:types
+
+shell-api:
+	docker compose exec api bash
+
+shell-web:
+	docker compose exec web sh
 
 clean:
+	docker compose down
+
+nuke:
 	docker compose down -v
-	rm -rf api/.venv api/__pycache__ api/src/opendpp/__pycache__

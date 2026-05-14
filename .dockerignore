@@ -1,0 +1,30 @@
+# keep build contexts small
+**/.git
+**/.gitignore
+**/.DS_Store
+**/.env
+**/.env.local
+**/.env.*.local
+prd.md
+README.md
+LICENSE
+Makefile
+docker-compose.yml
+
+# Python
+**/__pycache__
+**/*.pyc
+**/.venv
+**/.pytest_cache
+**/.ruff_cache
+**/.mypy_cache
+
+# Node / Next.js
+**/node_modules
+**/.next
+**/.turbo
+web/lib/generated
+
+# IDE
+**/.idea
+**/.vscode

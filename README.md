@@ -88,14 +88,11 @@ The v1.0 release targets the **textile** product category. Battery and electroni
 
 ## Getting started
 
-Target: working DPP running locally in **under 30 minutes**.
+Target: full stack running locally in **under 5 minutes**. Everything runs in Docker — no host Python or Node required.
 
 ### Prerequisites
 
-- macOS or Linux
-- [Docker](https://docs.docker.com/get-docker/) (for Postgres)
-- [`uv`](https://docs.astral.sh/uv/) — `brew install uv` on macOS
-- Python 3.12 (uv will fetch one if you don't have it)
+- [Docker](https://docs.docker.com/get-docker/) (Desktop or Engine)
 - `make`
 
 ### Quickstart
@@ -103,33 +100,37 @@ Target: working DPP running locally in **under 30 minutes**.
 ```bash
 git clone https://github.com/0xNadr/OpenDPP.git
 cd OpenDPP
-cp .env.example .env
 
-make install     # install API dependencies into api/.venv
-make db-up       # start Postgres in docker compose
+make build       # build api + web images
+make up          # start the stack (postgres + api + web)
 make migrate     # apply Alembic migrations
 make seed        # load three sample textile products
-make dev         # run the API on http://localhost:8000
 ```
 
 Open:
 
-- **API docs (OpenAPI)** — http://localhost:8000/docs
-- **Sample GS1 Digital Link (HTML placeholder)** — http://localhost:8000/01/07350053850010/10/ATL-2026-T01
-- **Same product as JSON-LD** —
+- **Viewer landing page** — http://localhost:3030
+- **Sample product (consumer view)** — http://localhost:3030/01/07350053850010/10/ATL-2026-T01
+- **Recycler / Regulator views** — same URL with `?view=recycler` or `?view=regulator`
+- **API docs (OpenAPI)** — http://localhost:8080/docs
+- **JSON-LD of a passport** —
   ```bash
   curl -H 'Accept: application/ld+json' \
-    http://localhost:8000/01/07350053850010/10/ATL-2026-T01
+    http://localhost:8080/01/07350053850010/10/ATL-2026-T01
   ```
+
+Host port map: **web 3030 · api 8080 · postgres 5433**. Non-defaults on purpose, so the stack doesn't collide with other dockerized dev projects on the same machine.
 
 ### Common tasks
 
 ```bash
-make test        # run the pytest suite (SQLite in-memory, no DB needed)
-make lint        # ruff lint
-make fmt         # ruff format
-make db-down     # stop Postgres
-make clean       # tear down DB volume + venv
+make logs        # tail logs from all services
+make test        # run the pytest suite inside the api container
+make lint        # ruff + tsc inside the containers
+make shell-api   # bash inside the api container
+make shell-web   # sh inside the web container
+make down        # stop the stack (keeps the db volume)
+make nuke        # tear everything down including the db volume
 ```
 
 ### Repository layout
@@ -138,13 +139,23 @@ make clean       # tear down DB volume + venv
 OpenDPP/
 ├── api/                          FastAPI service
 │   ├── src/opendpp/
-│   │   ├── routers/              GS1 Digital Link + REST endpoints
+│   │   ├── routers/              GS1 Digital Link, REST, QR
 │   │   ├── models/               SQLAlchemy ORM
 │   │   ├── schemas/              Pydantic request/response models
 │   │   ├── jsonld/               JSON-LD context (GS1 Web Vocab)
 │   │   └── validation.py         JSON Schema enforcement
 │   ├── alembic/                  Migrations
-│   └── tests/
+│   ├── tests/
+│   └── Dockerfile                multi-stage (dev / prod)
+├── web/                          Next.js viewer
+│   ├── app/
+│   │   ├── 01/[gtin]/...         GS1 Digital Link routes
+│   │   └── page.tsx              landing page with QR codes
+│   ├── components/
+│   │   └── views/                Consumer / Recycler / Regulator
+│   ├── lib/                      API client, types (auto-generated)
+│   ├── scripts/gen-types.mjs     codegen from textile-dpp.v1.json
+│   └── Dockerfile                multi-stage (dev / prod)
 ├── schemas/
 │   └── textile-dpp.v1.json       Canonical DPP schema (draft 2020-12)
 ├── seed/
@@ -156,9 +167,11 @@ OpenDPP/
 
 ## Status
 
-**Phase 1 (Foundation) — shipped.** Working API that resolves a GS1 Digital Link URL to a JSON-LD DPP record, with three seeded textile samples and a passing test suite.
+**Phase 1 (Foundation) — shipped.** API that resolves a GS1 Digital Link URL to a JSON-LD DPP record. Three seeded textile samples. 18 passing tests.
 
-Next: Phase 2 (Next.js viewer with consumer/recycler/regulator views and QR codes).
+**Phase 2 (Viewer) — in progress.** Next.js viewer with consumer / recycler / regulator views, GS1 Digital Link routes, scannable QR codes, full-stack docker-compose. Deploy to `opendpp.nader.info` planned post-feature-freeze.
+
+Next: Phase 3 (LLM Q&A + multilingual rendering).
 
 ## Contributing
 

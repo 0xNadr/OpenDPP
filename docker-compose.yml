@@ -7,14 +7,69 @@ services:
       POSTGRES_PASSWORD: opendpp
       POSTGRES_DB: opendpp
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - opendpp_pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U opendpp -d opendpp"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+      target: ${API_TARGET:-dev}
+    container_name: opendpp-api
+    environment:
+      DATABASE_URL: postgresql+asyncpg://opendpp:opendpp@postgres:5432/opendpp
+      DEBUG: "true"
+      CORS_ORIGINS: '["http://localhost:3030","http://127.0.0.1:3030"]'
+    ports:
+      - "8080:8000"
+    volumes:
+      - ./api/src:/app/src
+      - ./api/alembic:/app/alembic
+      - ./api/alembic.ini:/app/alembic.ini
+      - ./api/tests:/app/tests
+      - ./schemas:/schemas
+      - ./seed:/seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+      target: ${WEB_TARGET:-dev}
+    container_name: opendpp-web
+    environment:
+      # Inside the docker network, the web RSC fetches from `api` by service name.
+      API_BASE_URL: http://api:8000
+      # The browser-visible URL (used for QR codes on the landing page) is the
+      # host-mapped port. Override with NEXT_PUBLIC_SITE_URL=https://opendpp.nader.info in prod.
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3030}
+    ports:
+      - "3030:3000"
+    volumes:
+      - ./web/app:/app/app
+      - ./web/components:/app/components
+      - ./web/lib:/app/lib
+      - ./web/public:/app/public
+      - ./web/scripts:/app/scripts
+      - ./web/components.json:/app/components.json
+      - ./web/next.config.ts:/app/next.config.ts
+      - ./web/postcss.config.mjs:/app/postcss.config.mjs
+      - ./web/tsconfig.json:/app/tsconfig.json
+      - ./web/next-env.d.ts:/app/next-env.d.ts
+      - ./schemas:/schemas
+      # Keep node_modules from the image; don't let the host overwrite it.
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - api
 
 volumes:
   opendpp_pgdata:
