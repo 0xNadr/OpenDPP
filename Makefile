@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs build rebuild ps shell-api shell-web migrate seed test test-api test-web lint lint-api lint-web fmt-api gen-types clean nuke
+.PHONY: help up down restart logs build rebuild ps shell-api shell-web shell-hardhat migrate seed test test-api test-web test-contracts lint lint-api lint-web fmt-api gen-types compile-contracts deploy-contract-amoy clean nuke
 
 # Default target: print help.
 help:
@@ -18,8 +18,13 @@ help:
 	@echo "  make lint       Run ruff + tsc"
 	@echo "  make gen-types  Regenerate TS types from textile-dpp.v1.json"
 	@echo ""
-	@echo "  make shell-api  Open a shell in the api container"
-	@echo "  make shell-web  Open a shell in the web container"
+	@echo "  make shell-api       Open a shell in the api container"
+	@echo "  make shell-web       Open a shell in the web container"
+	@echo "  make shell-hardhat   Open a shell in the hardhat container"
+	@echo ""
+	@echo "  make compile-contracts          Recompile Solidity"
+	@echo "  make test-contracts             Run Hardhat contract tests"
+	@echo "  make deploy-contract-amoy       Deploy OpenDPPAnchor to Polygon Amoy (needs DEPLOYER_PRIVATE_KEY)"
 	@echo ""
 	@echo "  make clean      docker compose down (keeps volumes)"
 	@echo "  make nuke       docker compose down -v (drops the db volume)"
@@ -85,6 +90,20 @@ shell-api:
 
 shell-web:
 	docker compose exec web sh
+
+shell-hardhat:
+	docker compose exec hardhat sh
+
+compile-contracts:
+	docker compose exec hardhat pnpm exec hardhat compile
+
+test-contracts:
+	docker compose exec hardhat pnpm exec hardhat test
+
+deploy-contract-amoy:
+	docker compose exec -e DEPLOYER_PRIVATE_KEY=$${DEPLOYER_PRIVATE_KEY:?missing} \
+	                    -e AMOY_RPC_URL=$${AMOY_RPC_URL:-https://rpc-amoy.polygon.technology} \
+		hardhat pnpm exec hardhat run scripts/deploy.ts --network amoy
 
 clean:
 	docker compose down

@@ -16,6 +16,31 @@ services:
       timeout: 5s
       retries: 10
 
+  hardhat:
+    build:
+      context: .
+      dockerfile: contracts/Dockerfile
+      target: dev
+    container_name: opendpp-hardhat
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./contracts:/app
+      - opendpp_contract_artifacts:/app/deployments
+      - /app/node_modules
+      - /app/cache
+      - /app/artifacts
+      - /app/typechain-types
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "test -f /app/deployments/localhost.json",
+        ]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
   api:
     build:
       context: .
@@ -29,6 +54,13 @@ services:
       LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
+      ANCHOR_RPC_URL: ${ANCHOR_RPC_URL:-http://hardhat:8545}
+      ANCHOR_CHAIN_LABEL: ${ANCHOR_CHAIN_LABEL:-localhost}
+      ANCHOR_EXPLORER_TX_TEMPLATE: ${ANCHOR_EXPLORER_TX_TEMPLATE:-}
+      # Hardhat's first deterministic account; loaded with 10000 ETH.
+      # For Polygon Amoy, set this to your own funded testnet key.
+      ANCHOR_PRIVATE_KEY: ${ANCHOR_PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}
+      ANCHOR_DEPLOYMENT_PATH: /contracts/deployments/localhost.json
     ports:
       - "8080:8000"
     volumes:
@@ -38,8 +70,11 @@ services:
       - ./api/tests:/app/tests
       - ./schemas:/schemas
       - ./seed:/seed
+      - opendpp_contract_artifacts:/contracts/deployments:ro
     depends_on:
       postgres:
+        condition: service_healthy
+      hardhat:
         condition: service_healthy
 
   web:
@@ -78,3 +113,4 @@ services:
 
 volumes:
   opendpp_pgdata:
+  opendpp_contract_artifacts:

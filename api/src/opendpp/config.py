@@ -46,6 +46,32 @@ class Settings(BaseSettings):
     )
     llm_max_output_tokens: int = Field(default=1024)
 
+    # --- Anchor layer (Phase 5) -------------------------------------------
+    anchor_rpc_url: str = Field(
+        default="http://hardhat:8545",
+        description="JSON-RPC URL for the chain to anchor snapshot hashes on.",
+    )
+    anchor_private_key: str | None = Field(
+        default=None,
+        description="Private key used to sign anchor transactions. Required for anchoring.",
+    )
+    anchor_contract_address: str | None = Field(
+        default=None,
+        description="Address of the deployed OpenDPPAnchor contract. Falls back to the deployment artifact.",
+    )
+    anchor_chain_label: str = Field(
+        default="localhost",
+        description="Human-readable chain label used in stored proofs and UI.",
+    )
+    anchor_explorer_tx_template: str = Field(
+        default="",
+        description="URL template for the chain explorer. `{tx}` is replaced with the tx hash.",
+    )
+    anchor_deployment_path: Path = Field(
+        default=Path("/contracts/deployments/localhost.json"),
+        description="Filesystem path to the Hardhat deployment artifact (used when address isn't set in env).",
+    )
+
 
 @lru_cache
 def get_settings() -> Settings:

@@ -17,8 +17,19 @@ from pathlib import Path
 
 from sqlalchemy import select
 
+from opendpp.anchor import (
+    AnchorNotConfigured,
+    canonical_snapshot_hash,
+    get_anchor_service,
+)
 from opendpp.db import SessionLocal
-from opendpp.models import DPPRecord, Product, Supplier, VerifiableCredential
+from opendpp.models import (
+    AnchorProof,
+    DPPRecord,
+    Product,
+    Supplier,
+    VerifiableCredential,
+)
 from opendpp.validation import validate_dpp_data
 from opendpp.vc import SupplierKeyMaterial, issue_credential, keypair_from_seed
 
@@ -202,7 +213,51 @@ async def load() -> None:
                 supplier = await _seed_supplier(session, spec)
                 await _seed_credential(session, supplier, record, spec)
 
+            await _seed_anchor(session, record)
+
         await session.commit()
+
+
+async def _seed_anchor(session, record: DPPRecord) -> None:
+    snapshot = canonical_snapshot_hash(record.data)
+    existing = (
+        await session.execute(
+            select(AnchorProof).where(
+                AnchorProof.dpp_record_id == record.id,
+                AnchorProof.snapshot_hash == snapshot,
+            )
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        return
+
+    service = get_anchor_service()
+    if not service.configured:
+        print(f"  skipped anchor for {record.data['identification']['gtin']} (service not configured)")
+        return
+
+    try:
+        receipt = service.anchor(snapshot)
+    except AnchorNotConfigured:
+        print(f"  skipped anchor for {record.data['identification']['gtin']} (not configured)")
+        return
+    except Exception as exc:  # noqa: BLE001
+        print(f"  failed to anchor {record.data['identification']['gtin']}: {exc}")
+        return
+
+    session.add(
+        AnchorProof(
+            id=uuid.uuid4(),
+            dpp_record_id=record.id,
+            chain=receipt.chain,
+            snapshot_hash=receipt.snapshot_hash,
+            tx_hash=receipt.tx_hash,
+            block_number=receipt.block_number,
+            explorer_tx_url=receipt.explorer_tx_url,
+            anchored_at=receipt.anchored_at,
+        )
+    )
+    print(f"  anchored on {receipt.chain}: {receipt.tx_hash}")
 
 
 if __name__ == "__main__":

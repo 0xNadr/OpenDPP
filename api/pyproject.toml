@@ -24,6 +24,7 @@ dependencies = [
     "sse-starlette>=3.4.4",
     "cryptography>=48.0.0",
     "base58>=2.1.1",
+    "web3>=7.16.0",
 ]
 
 [project.scripts]

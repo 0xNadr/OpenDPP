@@ -107,3 +107,22 @@ export async function fetchCredentials(recordId: string): Promise<VerifiableCred
   if (!res.ok) return [];
   return (await res.json()) as VerifiableCredential[];
 }
+
+export type AnchorProof = {
+  id: string;
+  chain: string;
+  snapshot_hash: string;
+  tx_hash: string;
+  block_number: number;
+  explorer_tx_url: string | null;
+  anchored_at: string;
+};
+
+export async function fetchAnchorProofs(recordId: string): Promise<AnchorProof[]> {
+  const res = await fetch(
+    `${API_BASE_URL}/api/anchor/${encodeURIComponent(recordId)}/proof`,
+    { cache: "no-store" },
+  );
+  if (!res.ok) return [];
+  return (await res.json()) as AnchorProof[];
+}

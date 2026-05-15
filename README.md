@@ -121,7 +121,7 @@ Open:
 - **Multilingual** — append `?lang=de`, `?lang=fr`, or `?lang=ar` to any DPP URL (e.g., http://localhost:3030/01/07350053850010/10/ATL-2026-T01?lang=ar — note the RTL layout)
 - **Chat with a product** — open any DPP page and click "Ask about this product" in the bottom-right corner
 
-Host port map: **web 3030 · api 8080 · postgres 5433**. Non-defaults on purpose, so the stack doesn't collide with other dockerized dev projects on the same machine.
+Host port map: **web 3030 · api 8080 · postgres 5433 · hardhat 8545**. Non-defaults on purpose, so the stack doesn't collide with other dockerized dev projects on the same machine.
 
 ### Common tasks
 
@@ -216,9 +216,38 @@ Three demo suppliers with deterministic Ed25519 keys (the same DIDs across every
 
 **Phase 3 (AI layer) — shipped.** LLM Q&A (SSE streaming), multilingual rendering with Postgres-cached translations, LLM-assisted semantic validation. Defaults to Claude Sonnet 4.6; deterministic mock fallback for no-key dev.
 
-**Phase 4 (Trust layer) — shipped.** Ed25519 / `did:key` Verifiable Credentials, end-to-end issue → store → verify with one attestation per seeded product. ✓ badges on consumer view, full JWT + verify-button surface on regulator view. 43 passing tests.
+**Phase 4 (Trust layer) — shipped.** Ed25519 / `did:key` Verifiable Credentials, end-to-end issue → store → verify with one attestation per seeded product. ✓ badges on consumer view, full JWT + verify-button surface on regulator view.
 
-Next: Phase 5 (on-chain tamper-evidence anchoring on Polygon Amoy), then VPS deploy to `opendpp.nader.info`.
+**Phase 5 (Anchoring) — shipped.** Minimal Solidity contract (`OpenDPPAnchor`), Hardhat workspace, local chain in docker-compose with auto-deploy. SHA-256 of canonical DPP JSON gets anchored on-chain; regulator view shows the proof and a Re-verify button that re-hashes the current DPP and queries the contract directly — independent of OpenDPP's database. 54 passing tests.
+
+Next: VPS deploy to `opendpp.nader.info`.
+
+## Anchoring (Phase 5)
+
+The point of anchoring is **tamper-evidence**: store a hash of the DPP on a public ledger so anyone can verify the DPP hasn't changed since, without trusting OpenDPP's database.
+
+**How it works:**
+1. Take the DPP's `data` field, canonicalize it (sorted keys, no whitespace, UTF-8), SHA-256 it → 32-byte hash.
+2. Submit a transaction to `OpenDPPAnchor.anchor(bytes32)` which stores `block.timestamp` against that hash and emits an event.
+3. To verify later: re-hash the current DPP, call `anchoredAt(hash)` on the contract. Non-zero return = the hash was anchored at that timestamp. If the DPP was tampered with after anchoring, the hash won't match anything on-chain.
+
+**Endpoints:**
+
+- `POST /api/anchor/{record_id}` — anchor (idempotent: returns existing proof if already anchored)
+- `GET /api/anchor/{record_id}/proof` — list stored proofs
+- `GET /api/anchor/{record_id}/verify` — re-hash + query the chain right now
+
+**Local dev:** a `hardhat` service in docker-compose runs a local chain and auto-deploys `OpenDPPAnchor` on startup. `make seed` anchors all three demo products to it.
+
+**Polygon Amoy (production-ish):** set these env vars in `.env` and restart:
+
+```
+ANCHOR_RPC_URL=https://rpc-amoy.polygon.technology
+ANCHOR_PRIVATE_KEY=0x…           # funded with Amoy MATIC from a faucet
+ANCHOR_CONTRACT_ADDRESS=0x…      # from `make deploy-contract` against Amoy
+ANCHOR_CHAIN_LABEL=polygon-amoy
+ANCHOR_EXPLORER_TX_TEMPLATE=https://amoy.polygonscan.com/tx/{tx}
+```
 
 ## Contributing
 

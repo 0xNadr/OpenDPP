@@ -9,6 +9,7 @@ import { RegulatorView } from "@/components/views/RegulatorView";
 import {
   DPPNotFoundError,
   digitalLinkPath,
+  fetchAnchorProofs,
   fetchCredentials,
   fetchDPP,
   fetchTranslatedDPP,
@@ -46,9 +47,10 @@ export async function DPPPage({
   }
 
   const recordId = dpp["opendpp:recordId"];
-  const [translated, credentials] = await Promise.all([
+  const [translated, credentials, anchorProofs] = await Promise.all([
     lang !== "en" && recordId ? fetchTranslatedDPP(recordId, lang) : Promise.resolve(null),
     recordId ? fetchCredentials(recordId) : Promise.resolve([]),
+    recordId ? fetchAnchorProofs(recordId) : Promise.resolve([]),
   ]);
   if (translated) {
     dpp = { ...dpp, ...translated };
@@ -84,7 +86,12 @@ export async function DPPPage({
       )}
       {view === "recycler" && <RecyclerView dpp={dpp} />}
       {view === "regulator" && (
-        <RegulatorView dpp={dpp} credentials={credentials} />
+        <RegulatorView
+          dpp={dpp}
+          credentials={credentials}
+          anchorProofs={anchorProofs}
+          recordId={recordId}
+        />
       )}
 
       <footer className="mt-12 border-t pt-6 text-xs text-muted-foreground no-print">

@@ -8,15 +8,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AnchorCard } from "@/components/AnchorCard";
 import { VerifyButton } from "@/components/VerifyButton";
-import type { DPPJsonLd, VerifiableCredential } from "@/lib/api";
+import type { AnchorProof, DPPJsonLd, VerifiableCredential } from "@/lib/api";
 
 export function RegulatorView({
   dpp,
   credentials = [],
+  anchorProofs = [],
+  recordId,
 }: {
   dpp: DPPJsonLd;
   credentials?: VerifiableCredential[];
+  anchorProofs?: AnchorProof[];
+  recordId?: string;
 }) {
   const {
     identification,
@@ -100,6 +105,10 @@ export function RegulatorView({
           )}
         </CardContent>
       </Card>
+
+      {recordId && (
+        <AnchorCard recordId={recordId} proofs={anchorProofs} />
+      )}
 
       {credentials.length > 0 && (
         <Card>
