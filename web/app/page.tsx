@@ -12,7 +12,18 @@ export default function Home() {
   return (
     <main className="mx-auto w-full max-w-5xl px-6 py-12">
       <header className="mb-12">
-        <h1 className="text-4xl font-semibold tracking-tight">OpenDPP</h1>
+        <div className="flex items-center gap-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            aria-hidden="true"
+            width={48}
+            height={48}
+            className="h-12 w-12"
+          />
+          <h1 className="text-4xl font-semibold tracking-tight">OpenDPP</h1>
+        </div>
         <p className="mt-3 max-w-2xl text-muted-foreground">
           Open-source reference Digital Product Passport. Three sample textile
           products below, each with a scannable GS1 Digital Link QR.

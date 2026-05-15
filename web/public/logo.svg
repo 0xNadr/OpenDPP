@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OpenDPP">
+  <title>OpenDPP</title>
+  <!-- Rounded emerald square — references the verified-credential / anchored
+       badge color used throughout the UI. -->
+  <rect x="0" y="0" width="64" height="64" rx="14" ry="14" fill="#059669"/>
+  <!-- Bold white checkmark — reads as "verified product passport"
+       even at favicon scale. Stroke-based so it stays crisp at 16x16. -->
+  <path d="M16 33 L28 45 L48 21"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="7"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+</svg>

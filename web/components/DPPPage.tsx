@@ -67,9 +67,19 @@ export async function DPPPage({
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between no-print">
         <Link
           href="/"
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+          aria-label="OpenDPP home"
         >
-          ← OpenDPP
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo.svg"
+            alt=""
+            aria-hidden="true"
+            width={20}
+            height={20}
+            className="h-5 w-5"
+          />
+          <span>OpenDPP</span>
         </Link>
         <div className="flex flex-wrap items-center gap-2">
           <ViewSwitcher basePath={basePath} current={view} />

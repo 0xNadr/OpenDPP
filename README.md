@@ -1,4 +1,22 @@
-# OpenDPP
+<p align="center">
+  <img src="assets/logo.svg" alt="OpenDPP" width="96" height="96" />
+</p>
+
+<h1 align="center">OpenDPP</h1>
+
+<p align="center">
+  Open-source, AI-native, standards-compliant reference implementation<br />
+  of a <strong>Digital Product Passport</strong> for the European market.
+</p>
+
+<p align="center">
+  <a href="https://github.com/0xNadr/OpenDPP/wiki"><img alt="Wiki" src="https://img.shields.io/badge/docs-wiki-059669"></a>
+  <a href="https://github.com/0xNadr/OpenDPP/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+  <img alt="Phases shipped" src="https://img.shields.io/badge/phases-1--5%20shipped-059669">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-54%20passing-059669">
+</p>
+
+---
 
 An open-source, AI-native, standards-compliant reference implementation of a **Digital Product Passport (DPP)** for the European market.
 
