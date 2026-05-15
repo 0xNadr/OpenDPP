@@ -1,4 +1,4 @@
-.PHONY: help up down restart logs build rebuild ps shell-api shell-web shell-hardhat migrate seed test test-api test-web test-contracts lint lint-api lint-web fmt-api gen-types compile-contracts deploy-contract-amoy clean nuke
+.PHONY: help up down restart refresh-web logs build rebuild ps shell-api shell-web shell-hardhat migrate seed test test-api test-web test-contracts lint lint-api lint-web fmt-api gen-types compile-contracts deploy-contract-amoy clean nuke
 
 # Default target: print help.
 help:
@@ -7,6 +7,7 @@ help:
 	@echo "  make up         Start the full stack (postgres + api + web)"
 	@echo "  make down       Stop the stack (keeps the db volume)"
 	@echo "  make restart    Restart api + web"
+	@echo "  make refresh-web  Clear the web container's .next cache + restart (fixes stale Turbopack import maps after adding files)"
 	@echo "  make build      Build images"
 	@echo "  make rebuild    Rebuild images from scratch and restart"
 	@echo "  make logs       Tail logs from all services"
@@ -43,6 +44,14 @@ down:
 
 restart:
 	docker compose restart api web
+
+# Clears the anonymous /app/.next volume's contents in place — needed
+# whenever a new file under web/ doesn't show up in Turbopack's import
+# map after a plain restart. Cheaper than --force-recreate (which would
+# also blow away node_modules and trigger a full pnpm install).
+refresh-web:
+	docker compose exec web sh -c 'cd /app/.next && find . -mindepth 1 -delete' || true
+	docker compose restart web
 
 build:
 	docker compose build
