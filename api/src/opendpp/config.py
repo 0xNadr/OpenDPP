@@ -31,6 +31,21 @@ class Settings(BaseSettings):
         description="Origins allowed by CORS — defaults to the Next.js dev server.",
     )
 
+    # --- LLM layer --------------------------------------------------------
+    llm_provider: str = Field(
+        default="anthropic",
+        description="Which ChatProvider to use: 'anthropic' or 'mock'. Falls back to 'mock' if anthropic is selected but no API key is set.",
+    )
+    anthropic_api_key: str | None = Field(
+        default=None,
+        description="Anthropic API key. Set via ANTHROPIC_API_KEY env var; never committed.",
+    )
+    anthropic_model: str = Field(
+        default="claude-sonnet-4-6",
+        description="Default Anthropic model id.",
+    )
+    llm_max_output_tokens: int = Field(default=1024)
+
 
 @lru_cache
 def get_settings() -> Settings:

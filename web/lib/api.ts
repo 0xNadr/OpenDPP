@@ -7,7 +7,12 @@ export type DPPJsonLd = TextileDigitalProductPassport & {
   "@context"?: Record<string, string>;
   "@type"?: string | string[];
   "@id"?: string;
+  "opendpp:recordId"?: string;
 };
+
+export const SUPPORTED_LANGS = ["en", "de", "fr", "ar"] as const;
+export type Lang = (typeof SUPPORTED_LANGS)[number];
+export const RTL_LANGS: Lang[] = ["ar"];
 
 export type DigitalLinkParams = {
   gtin: string;
@@ -49,3 +54,30 @@ export function qrUrl(
   const qs = q.toString();
   return `${API_BASE_URL}/api/qr${digitalLinkPath(params)}${qs ? `?${qs}` : ""}`;
 }
+
+/** Server-side helper: fetch a DPP translated into `lang`. Returns the
+ *  translated `data` payload (same shape as the JSON-LD body, without
+ *  the @context wrapper). Falls back to the original if the API errors.
+ */
+export async function fetchTranslatedDPP(
+  recordId: string,
+  lang: Lang,
+): Promise<TextileDigitalProductPassport | null> {
+  if (lang === "en") return null;
+  const res = await fetch(
+    `${API_BASE_URL}/api/dpp/${encodeURIComponent(recordId)}/translate?lang=${lang}`,
+    { cache: "no-store" },
+  );
+  if (!res.ok) return null;
+  const body = (await res.json()) as {
+    data: TextileDigitalProductPassport;
+    lang: Lang;
+    cached: boolean;
+  };
+  return body.data;
+}
+
+/** Browser-visible API base URL. The web container talks to `api:8000`
+ *  server-side (RSC), but the browser must hit the host-mapped port. */
+export const PUBLIC_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";

@@ -26,6 +26,9 @@ services:
       DATABASE_URL: postgresql+asyncpg://opendpp:opendpp@postgres:5432/opendpp
       DEBUG: "true"
       CORS_ORIGINS: '["http://localhost:3030","http://127.0.0.1:3030"]'
+      LLM_PROVIDER: ${LLM_PROVIDER:-anthropic}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-sonnet-4-6}
     ports:
       - "8080:8000"
     volumes:
@@ -51,6 +54,8 @@ services:
       # The browser-visible URL (used for QR codes on the landing page) is the
       # host-mapped port. Override with NEXT_PUBLIC_SITE_URL=https://opendpp.nader.info in prod.
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3030}
+      # Browser-visible API base URL (Phase 3: chat SSE goes here from the browser).
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
     ports:
       - "3030:3000"
     volumes:

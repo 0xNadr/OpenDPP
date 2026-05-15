@@ -5,9 +5,9 @@ export default async function Page({
   searchParams,
 }: {
   params: Promise<{ gtin: string; lot: string; serial: string }>;
-  searchParams: Promise<{ view?: string }>;
+  searchParams: Promise<{ view?: string; lang?: string }>;
 }) {
   const { gtin, lot, serial } = await params;
-  const { view } = await searchParams;
-  return <DPPPage params={{ gtin, lot, serial }} view={view} />;
+  const { view, lang } = await searchParams;
+  return <DPPPage params={{ gtin, lot, serial }} view={view} lang={lang} />;
 }

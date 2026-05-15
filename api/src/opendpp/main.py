@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from opendpp import __version__
 from opendpp.config import get_settings
-from opendpp.routers import digital_link, dpp, qr
+from opendpp.routers import chat, digital_link, dpp, qr, translate, validate_semantic
 
 
 def create_app() -> FastAPI:
@@ -26,6 +26,9 @@ def create_app() -> FastAPI:
 
     app.include_router(dpp.router)
     app.include_router(qr.router)
+    app.include_router(chat.router)
+    app.include_router(translate.router)
+    app.include_router(validate_semantic.router)
     app.include_router(digital_link.router)
 
     return app

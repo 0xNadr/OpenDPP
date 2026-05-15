@@ -118,6 +118,8 @@ Open:
   curl -H 'Accept: application/ld+json' \
     http://localhost:8080/01/07350053850010/10/ATL-2026-T01
   ```
+- **Multilingual** — append `?lang=de`, `?lang=fr`, or `?lang=ar` to any DPP URL (e.g., http://localhost:3030/01/07350053850010/10/ATL-2026-T01?lang=ar — note the RTL layout)
+- **Chat with a product** — open any DPP page and click "Ask about this product" in the bottom-right corner
 
 Host port map: **web 3030 · api 8080 · postgres 5433**. Non-defaults on purpose, so the stack doesn't collide with other dockerized dev projects on the same machine.
 
@@ -165,13 +167,38 @@ OpenDPP/
 └── Makefile
 ```
 
+## AI features (Phase 3)
+
+OpenDPP ships with three LLM-backed endpoints, all routed through a `ChatProvider` abstraction (Anthropic Claude by default, with a deterministic mock fallback for no-key / CI dev):
+
+- **`POST /api/chat/{record_id}`** — streaming Q&A grounded in a specific DPP. SSE response with `delta` / `done` / `error` events. Used by the floating chat drawer on every DPP page.
+- **`GET /api/dpp/{record_id}/translate?lang=…`** — runtime translation of a DPP into EN / DE / FR / AR. First call hits the LLM; subsequent calls with the same content hit a Postgres cache (`translation_cache` table). Cache auto-invalidates when the DPP changes.
+- **`POST /api/validate/semantic`** — LLM-assisted post-validation for candidate DPP data, catching what JSON Schema can't (composition percentages that don't sum to 100, expired certificates, supply-chain inconsistencies, etc).
+
+### Wiring up Claude
+
+Drop your API key into `.env` and restart:
+
+```bash
+echo 'ANTHROPIC_API_KEY=sk-ant-…' >> .env
+make restart
+```
+
+Without a key, the stack silently uses `MockChatProvider` — translations get bracketed `[DE] …` prefixes, chat returns a canned acknowledgement, semantic validation catches the percentage-sum case. The mock is deterministic enough that the test suite runs against it.
+
+### Multilingual viewer
+
+Append `?lang=de`, `?lang=fr`, or `?lang=ar` to any DPP URL. The viewer fetches the translated payload server-side, sets `dir="rtl"` automatically for Arabic, and propagates the language through the language switcher in the page header.
+
 ## Status
 
-**Phase 1 (Foundation) — shipped.** API that resolves a GS1 Digital Link URL to a JSON-LD DPP record. Three seeded textile samples. 18 passing tests.
+**Phase 1 (Foundation) — shipped.** API that resolves a GS1 Digital Link URL to a JSON-LD DPP record. Three seeded textile samples.
 
-**Phase 2 (Viewer) — in progress.** Next.js viewer with consumer / recycler / regulator views, GS1 Digital Link routes, scannable QR codes, full-stack docker-compose. Deploy to `opendpp.nader.info` planned post-feature-freeze.
+**Phase 2 (Viewer) — shipped.** Next.js viewer with consumer / recycler / regulator views, scannable QR codes, fully-dockerized stack.
 
-Next: Phase 3 (LLM Q&A + multilingual rendering).
+**Phase 3 (AI layer) — shipped.** LLM Q&A (SSE streaming), multilingual rendering with Postgres-cached translations, LLM-assisted semantic validation. Defaults to Claude Sonnet 4.6; deterministic mock fallback for no-key dev. 31 passing tests.
+
+Next: Phase 4 (Verifiable Credentials), then Phase 5 (on-chain anchoring), then VPS deploy to `opendpp.nader.info`.
 
 ## Contributing
 

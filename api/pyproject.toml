@@ -20,6 +20,8 @@ dependencies = [
     "python-dotenv>=1.0",
     "greenlet>=3.5.0",
     "qrcode[pil]>=8.2",
+    "anthropic>=0.102.0",
+    "sse-starlette>=3.4.4",
 ]
 
 [project.scripts]

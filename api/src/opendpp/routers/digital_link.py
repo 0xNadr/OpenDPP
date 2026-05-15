@@ -51,6 +51,7 @@ def _render_response(
     canonical_id = str(request.url.remove_query_params(["view", "lang"]))
     if prefers_jsonld(request):
         body = wrap_jsonld(record.data, id_uri=canonical_id)
+        body["opendpp:recordId"] = str(record.id)
         return JSONResponse(content=body, media_type=JSONLD_MEDIA_TYPE)
     # HTML placeholder until Phase 2 viewer ships.
     html = (

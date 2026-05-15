@@ -1,25 +1,39 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ChatDrawer } from "@/components/ChatDrawer";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ViewSwitcher } from "@/components/ViewSwitcher";
 import { ConsumerView } from "@/components/views/ConsumerView";
 import { RecyclerView } from "@/components/views/RecyclerView";
 import { RegulatorView } from "@/components/views/RegulatorView";
-import { ViewSwitcher } from "@/components/ViewSwitcher";
 import {
   DPPNotFoundError,
   digitalLinkPath,
   fetchDPP,
+  fetchTranslatedDPP,
+  RTL_LANGS,
+  SUPPORTED_LANGS,
   type DigitalLinkParams,
+  type Lang,
 } from "@/lib/api";
 import { parseView, VIEW_DESCRIPTIONS } from "@/lib/views";
+
+function parseLang(raw: string | string[] | undefined): Lang {
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return SUPPORTED_LANGS.includes(v as Lang) ? (v as Lang) : "en";
+}
 
 export async function DPPPage({
   params,
   view: rawView,
+  lang: rawLang,
 }: {
   params: DigitalLinkParams;
   view: string | string[] | undefined;
+  lang: string | string[] | undefined;
 }) {
   const view = parseView(Array.isArray(rawView) ? rawView[0] : rawView);
+  const lang = parseLang(rawLang);
   const basePath = digitalLinkPath(params);
 
   let dpp;
@@ -30,8 +44,21 @@ export async function DPPPage({
     throw err;
   }
 
+  if (lang !== "en" && dpp["opendpp:recordId"]) {
+    const translated = await fetchTranslatedDPP(dpp["opendpp:recordId"], lang);
+    if (translated) {
+      dpp = { ...dpp, ...translated };
+    }
+  }
+
+  const dir = RTL_LANGS.includes(lang) ? "rtl" : "ltr";
+
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
+    <main
+      lang={lang}
+      dir={dir}
+      className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12"
+    >
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between no-print">
         <Link
           href="/"
@@ -39,7 +66,10 @@ export async function DPPPage({
         >
           ← OpenDPP
         </Link>
-        <ViewSwitcher basePath={basePath} current={view} />
+        <div className="flex flex-wrap items-center gap-2">
+          <ViewSwitcher basePath={basePath} current={view} />
+          <LanguageSwitcher basePath={basePath} current={lang} view={view} />
+        </div>
       </div>
 
       <p className="mb-4 text-xs text-muted-foreground no-print">
@@ -59,6 +89,10 @@ export async function DPPPage({
           GS1 Digital Link: {basePath}
         </p>
       </footer>
+
+      {dpp["opendpp:recordId"] && (
+        <ChatDrawer recordId={dpp["opendpp:recordId"]} />
+      )}
     </main>
   );
 }
