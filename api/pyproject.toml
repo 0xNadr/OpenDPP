@@ -22,6 +22,8 @@ dependencies = [
     "qrcode[pil]>=8.2",
     "anthropic>=0.102.0",
     "sse-starlette>=3.4.4",
+    "cryptography>=48.0.0",
+    "base58>=2.1.1",
 ]
 
 [project.scripts]

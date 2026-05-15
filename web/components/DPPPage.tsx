@@ -9,6 +9,7 @@ import { RegulatorView } from "@/components/views/RegulatorView";
 import {
   DPPNotFoundError,
   digitalLinkPath,
+  fetchCredentials,
   fetchDPP,
   fetchTranslatedDPP,
   RTL_LANGS,
@@ -44,11 +45,13 @@ export async function DPPPage({
     throw err;
   }
 
-  if (lang !== "en" && dpp["opendpp:recordId"]) {
-    const translated = await fetchTranslatedDPP(dpp["opendpp:recordId"], lang);
-    if (translated) {
-      dpp = { ...dpp, ...translated };
-    }
+  const recordId = dpp["opendpp:recordId"];
+  const [translated, credentials] = await Promise.all([
+    lang !== "en" && recordId ? fetchTranslatedDPP(recordId, lang) : Promise.resolve(null),
+    recordId ? fetchCredentials(recordId) : Promise.resolve([]),
+  ]);
+  if (translated) {
+    dpp = { ...dpp, ...translated };
   }
 
   const dir = RTL_LANGS.includes(lang) ? "rtl" : "ltr";
@@ -76,9 +79,13 @@ export async function DPPPage({
         {VIEW_DESCRIPTIONS[view]}
       </p>
 
-      {view === "consumer" && <ConsumerView dpp={dpp} />}
+      {view === "consumer" && (
+        <ConsumerView dpp={dpp} credentials={credentials} />
+      )}
       {view === "recycler" && <RecyclerView dpp={dpp} />}
-      {view === "regulator" && <RegulatorView dpp={dpp} />}
+      {view === "regulator" && (
+        <RegulatorView dpp={dpp} credentials={credentials} />
+      )}
 
       <footer className="mt-12 border-t pt-6 text-xs text-muted-foreground no-print">
         <p>

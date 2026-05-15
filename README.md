@@ -190,15 +190,35 @@ Without a key, the stack silently uses `MockChatProvider` — translations get b
 
 Append `?lang=de`, `?lang=fr`, or `?lang=ar` to any DPP URL. The viewer fetches the translated payload server-side, sets `dir="rtl"` automatically for Arabic, and propagates the language through the language switcher in the page header.
 
+## Trust layer (Phase 4)
+
+OpenDPP issues and verifies **W3C Verifiable Credentials** so individual claims on a DPP can be cryptographically attributed to a specific supplier:
+
+- **DID method:** `did:key` (self-resolving — the public key *is* the identifier; no DNS, no resolver, no chain)
+- **Signature suite:** Ed25519 / EdDSA
+- **Credential format:** VC-JWT (W3C VC Data Model 2.0 with JWT serialization)
+
+### Endpoints
+
+- **`POST /api/vc/issue`** — body: `{supplier_id, dpp_record_id, attestation_type, claim}` → returns signed JWT + unsigned VC body
+- **`POST /api/vc/verify`** — body: `{jwt}` → returns `{valid, issuer, subject, claims, error?}`. Verification is self-contained — issuer DID resolves to its public key directly, no network call needed
+- **`GET /api/vc/dpp/{record_id}`** — list every VC attached to a DPP (powers the badge in the viewer)
+
+### What `make seed` ships
+
+Three demo suppliers with deterministic Ed25519 keys (the same DIDs across every clone of this repo), each issuing one signed attestation about their seeded product: GOTS for Atelier, GRS for Northwave, RWS for Soraya. Consumer view shows a ✓ "Verified by …" badge next to each certification with a matching VC. Regulator view exposes the raw JWT, the credential body, and a **Verify signature** button that hits `/api/vc/verify` from the browser.
+
 ## Status
 
 **Phase 1 (Foundation) — shipped.** API that resolves a GS1 Digital Link URL to a JSON-LD DPP record. Three seeded textile samples.
 
 **Phase 2 (Viewer) — shipped.** Next.js viewer with consumer / recycler / regulator views, scannable QR codes, fully-dockerized stack.
 
-**Phase 3 (AI layer) — shipped.** LLM Q&A (SSE streaming), multilingual rendering with Postgres-cached translations, LLM-assisted semantic validation. Defaults to Claude Sonnet 4.6; deterministic mock fallback for no-key dev. 31 passing tests.
+**Phase 3 (AI layer) — shipped.** LLM Q&A (SSE streaming), multilingual rendering with Postgres-cached translations, LLM-assisted semantic validation. Defaults to Claude Sonnet 4.6; deterministic mock fallback for no-key dev.
 
-Next: Phase 4 (Verifiable Credentials), then Phase 5 (on-chain anchoring), then VPS deploy to `opendpp.nader.info`.
+**Phase 4 (Trust layer) — shipped.** Ed25519 / `did:key` Verifiable Credentials, end-to-end issue → store → verify with one attestation per seeded product. ✓ badges on consumer view, full JWT + verify-button surface on regulator view. 43 passing tests.
+
+Next: Phase 5 (on-chain tamper-evidence anchoring on Polygon Amoy), then VPS deploy to `opendpp.nader.info`.
 
 ## Contributing
 

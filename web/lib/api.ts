@@ -81,3 +81,29 @@ export async function fetchTranslatedDPP(
  *  server-side (RSC), but the browser must hit the host-mapped port. */
 export const PUBLIC_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+
+export type VerifiableCredential = {
+  id: string;
+  attestation_type: string;
+  subject_id: string;
+  jwt: string;
+  body: {
+    issuer: string;
+    validFrom?: string;
+    type: string[];
+    credentialSubject: Record<string, unknown> & {
+      certificationScheme?: string;
+      certificationId?: string;
+    };
+    [k: string]: unknown;
+  };
+  supplier: { name: string; did: string };
+};
+
+export async function fetchCredentials(recordId: string): Promise<VerifiableCredential[]> {
+  const res = await fetch(`${API_BASE_URL}/api/vc/dpp/${encodeURIComponent(recordId)}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return [];
+  return (await res.json()) as VerifiableCredential[];
+}

@@ -2,9 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { MaterialBar } from "@/components/MaterialBar";
-import type { DPPJsonLd } from "@/lib/api";
+import { findCredentialFor, VerifiedBadge } from "@/components/VerifiedBadge";
+import type { DPPJsonLd, VerifiableCredential } from "@/lib/api";
 
-export function ConsumerView({ dpp }: { dpp: DPPJsonLd }) {
+export function ConsumerView({
+  dpp,
+  credentials = [],
+}: {
+  dpp: DPPJsonLd;
+  credentials?: VerifiableCredential[];
+}) {
   const { identification, composition, origin, environmental, compliance, lifecycleGuidance } =
     dpp;
 
@@ -68,13 +75,21 @@ export function ConsumerView({ dpp }: { dpp: DPPJsonLd }) {
             <CardTitle>Certifications</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {compliance.certifications.map((c) => (
-                <Badge key={`${c.scheme}-${c.identifier}`} variant="secondary">
-                  {c.scheme}
-                </Badge>
-              ))}
-            </div>
+            <ul className="space-y-2">
+              {compliance.certifications.map((c) => {
+                const vc = findCredentialFor(credentials, c.scheme, c.identifier);
+                return (
+                  <li
+                    key={`${c.scheme}-${c.identifier}`}
+                    className="flex flex-wrap items-center gap-2"
+                  >
+                    <Badge variant="secondary">{c.scheme}</Badge>
+                    <code className="text-xs text-muted-foreground">{c.identifier}</code>
+                    {vc && <VerifiedBadge vc={vc} />}
+                  </li>
+                );
+              })}
+            </ul>
           </CardContent>
         </Card>
       )}

@@ -10,9 +10,14 @@ from opendpp.llm.provider import SemanticWarning
 
 @pytest.fixture(autouse=True)
 def _force_mock(monkeypatch):
+    from opendpp.config import get_settings
+
     monkeypatch.setenv("LLM_PROVIDER", "mock")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "")
+    get_settings.cache_clear()  # type: ignore[attr-defined]
     get_provider.cache_clear()  # type: ignore[attr-defined]
     yield
+    get_settings.cache_clear()  # type: ignore[attr-defined]
     get_provider.cache_clear()  # type: ignore[attr-defined]
 
 

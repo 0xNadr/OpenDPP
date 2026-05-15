@@ -8,9 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { DPPJsonLd } from "@/lib/api";
+import { VerifyButton } from "@/components/VerifyButton";
+import type { DPPJsonLd, VerifiableCredential } from "@/lib/api";
 
-export function RegulatorView({ dpp }: { dpp: DPPJsonLd }) {
+export function RegulatorView({
+  dpp,
+  credentials = [],
+}: {
+  dpp: DPPJsonLd;
+  credentials?: VerifiableCredential[];
+}) {
   const {
     identification,
     composition,
@@ -93,6 +100,52 @@ export function RegulatorView({ dpp }: { dpp: DPPJsonLd }) {
           )}
         </CardContent>
       </Card>
+
+      {credentials.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Verifiable Credentials</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {credentials.map((vc) => (
+              <div
+                key={vc.id}
+                className="space-y-2 rounded-md border bg-muted/40 p-3"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="default" className="bg-emerald-600">
+                    {vc.attestation_type}
+                  </Badge>
+                  <span className="text-sm">
+                    Issued by{" "}
+                    <span className="font-medium">{vc.supplier.name}</span>
+                  </span>
+                </div>
+                <p className="font-mono text-xs text-muted-foreground break-all">
+                  {vc.supplier.did}
+                </p>
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Show JWT
+                  </summary>
+                  <pre className="mt-2 max-h-32 overflow-auto rounded-md bg-background p-2 text-xs break-all whitespace-pre-wrap">
+                    {vc.jwt}
+                  </pre>
+                </details>
+                <details className="text-sm">
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
+                    Show credential body
+                  </summary>
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-background p-2 text-xs">
+                    {JSON.stringify(vc.body, null, 2)}
+                  </pre>
+                </details>
+                <VerifyButton jwt={vc.jwt} />
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
