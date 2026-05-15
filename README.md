@@ -208,6 +208,17 @@ OpenDPP issues and verifies **W3C Verifiable Credentials** so individual claims 
 
 Three demo suppliers with deterministic Ed25519 keys (the same DIDs across every clone of this repo), each issuing one signed attestation about their seeded product: GOTS for Atelier, GRS for Northwave, RWS for Soraya. Consumer view shows a ✓ "Verified by …" badge next to each certification with a matching VC. Regulator view exposes the raw JWT, the credential body, and a **Verify signature** button that hits `/api/vc/verify` from the browser.
 
+## Documentation
+
+Long-form material lives in the **[OpenDPP Wiki](https://github.com/0xNadr/OpenDPP/wiki)**:
+
+- **[Architecture](https://github.com/0xNadr/OpenDPP/wiki/Architecture)** — the four-tier stack, what runs where, why each piece exists
+- **[Standards Map](https://github.com/0xNadr/OpenDPP/wiki/Standards-Map)** — which spec is implemented in which file
+- **[Security Model](https://github.com/0xNadr/OpenDPP/wiki/Security-Model)** — what's cryptographically guaranteed, what's demo-grade, what to harden
+- **[Deploying to a VPS](https://github.com/0xNadr/OpenDPP/wiki/Deploying-To-A-VPS)** — production deployment recipe
+- **[Switching the Anchor to Polygon Amoy](https://github.com/0xNadr/OpenDPP/wiki/Switching-The-Anchor-To-Polygon-Amoy)** — moving Phase 5 to a real public testnet
+- **[Extending the Schema](https://github.com/0xNadr/OpenDPP/wiki/Extending-The-Schema)** — adding battery / electronics / footwear beyond the v1.0 textile reference
+
 ## Status
 
 **Phase 1 (Foundation) — shipped.** API that resolves a GS1 Digital Link URL to a JSON-LD DPP record. Three seeded textile samples.
